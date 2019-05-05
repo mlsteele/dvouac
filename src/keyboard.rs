@@ -1,5 +1,6 @@
 use crate::*;
 use std::fs::File;
+use std::process::Command;
 
 pub struct Keyboard {
     devices: Vec<evdev_rs::Device>
@@ -82,8 +83,22 @@ impl Keyboard {
         }
     }
 
-    pub fn switch(&mut self, _layout: Layout) -> EResult {
-        unimplemented!();
+    pub fn switch(&mut self, layout: Layout) -> EResult {
+        use Layout::*;
+        let arg = match layout {
+            US => "us",
+            Dvorak => "us(dvorak)",
+        };
+        if Command::new("setxkbmap")
+            .args(&[arg])
+            .status()?.success()
+        {
+            EOK
+        } else {
+            bail!("failed to setxkbmap")
+        }
+        // setxkbmap 'us'
+        // setxkbmap 'us(dvorak)'
     }
 }
 

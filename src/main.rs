@@ -20,8 +20,10 @@ fn main2() -> EResult {
     loop {
         let c = kb.next_key()?;
         if let Some(c) = c {
+            // println!("key {}", c);
             recognizer.feed(c);
             if let Some(layout) = recognizer.recommend() {
+                println!("switch {:?}", layout);
                 kb.switch(layout)?;
             }
         }
@@ -36,6 +38,7 @@ fn eprint_error(err: &failure::Error) {
     eprintln!("\n{:?}", err.backtrace());
 }
 
+#[derive(Debug)]
 pub enum Layout {
     US,
     Dvorak,
