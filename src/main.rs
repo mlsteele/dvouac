@@ -15,12 +15,16 @@ fn main() {
 }
 
 fn main2() -> EResult {
-    let mut kb = Keyboard::new();
+    let mut kb = Keyboard::new()?;
     let mut recognizer = Recognizer::new();
     loop {
         let c = kb.next_key()?;
-        recognizer.feed(c);
-        recognizer.recommend();
+        if let Some(c) = c {
+            recognizer.feed(c);
+            if let Some(layout) = recognizer.recommend() {
+                kb.switch(layout)?;
+            }
+        }
     }
 }
 
