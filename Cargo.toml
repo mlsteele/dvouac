@@ -1,0 +1,10 @@
+[package]
+name = "twype"
+version = "0.1.0"
+authors = ["Miles Steele <miles@milessteele.com>"]
+edition = "2018"
+
+[dependencies]
+failure = "0.1.5"
+# evdev = "0.10.1"
+evdev-rs = "0.2.0"
