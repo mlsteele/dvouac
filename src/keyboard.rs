@@ -3,7 +3,8 @@ use std::fs::File;
 use std::process::Command;
 
 pub struct Keyboard {
-    devices: Vec<evdev_rs::Device>
+    devices: Vec<evdev_rs::Device>,
+    alternate: bool,
 }
 
 impl Keyboard {
@@ -24,7 +25,7 @@ impl Keyboard {
         for (i, dev) in devices.iter().enumerate() {
             println!("{}: {:?}", i, dev.name())
         }
-        Ok(Self{ devices })
+        Ok(Self{ devices, alternate: false })
     }
 
     pub fn next_key(&mut self) -> Result<Option<char>> {
@@ -42,6 +43,10 @@ impl Keyboard {
                 //                 ev.event_code);
                 use evdev_rs::enums::*;
                 if let EventCode::EV_KEY(key) = ev.event_code {
+                    self.alternate = !self.alternate;
+                    if self.alternate { // xxx todo
+                        return Ok(None)
+                    }
                     return Ok(Self::key_to_char(key))
                 }
                 return Ok(None)
@@ -79,6 +84,17 @@ impl Keyboard {
             KEY_Y => Some('y'),
             KEY_Z => Some('z'),
             KEY_SPACE => Some(' '),
+            KEY_MINUS => Some('-'),
+            KEY_SEMICOLON => Some(','),
+            KEY_APOSTROPHE => Some('\''),
+            KEY_GRAVE => Some('`'),
+            KEY_BACKSLASH => Some('\\'),
+            KEY_EQUAL => Some('='),
+            KEY_LEFTBRACE => Some('{'),
+            KEY_RIGHTBRACE => Some('}'),
+            KEY_COMMA => Some(','),
+            KEY_DOT => Some('.'),
+            KEY_SLASH => Some('/'),
             _ => None,
         }
     }
