@@ -4,7 +4,6 @@ use std::process::Command;
 
 pub struct Keyboard {
     devices: Vec<evdev_rs::Device>,
-    alternate: bool,
 }
 
 impl Keyboard {
@@ -22,10 +21,13 @@ impl Keyboard {
         if devices.len() == 0 {
             bail!("no devices opened (may need sudo)");
         }
-        for (i, dev) in devices.iter().enumerate() {
-            println!("{}: {:?}", i, dev.name())
-        }
-        Ok(Self{ devices, alternate: false })
+        let kb_devices = devices.into_iter().enumerate().filter(|(i, dev)| {
+            let sample_key = evdev_rs::enums::EventCode::EV_KEY(evdev_rs::enums::EV_KEY::KEY_A);
+            let kb = dev.has(&sample_key);
+            println!("{}: {:?} {:?}", i, dev.name(), kb);
+            kb
+        }).map(|(_, dev)| dev).collect();
+        Ok(Self{ devices: kb_devices })
     }
 
     pub fn next_key(&mut self) -> Result<Option<char>> {
@@ -43,11 +45,8 @@ impl Keyboard {
                 //                 ev.event_code);
                 use evdev_rs::enums::*;
                 if let EventCode::EV_KEY(key) = ev.event_code {
-                    self.alternate = !self.alternate;
-                    if self.alternate { // xxx todo
-                        return Ok(None)
-                    }
-                    return Ok(Self::key_to_char(key))
+                   println!("dev {:?}", dev.name());
+                   return Ok(Self::key_to_char(key))
                 }
                 return Ok(None)
             }
