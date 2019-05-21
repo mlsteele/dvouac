@@ -4,6 +4,7 @@ use std::process::Command;
 
 pub struct Keyboard {
     devices: Vec<evdev_rs::Device>,
+    alternate: bool,
 }
 
 impl Keyboard {
@@ -26,8 +27,9 @@ impl Keyboard {
             let kb = dev.has(&sample_key);
             println!("{}: {:?} {:?}", i, dev.name(), kb);
             kb
-        }).map(|(_, dev)| dev).collect();
-        Ok(Self{ devices: kb_devices })
+        }).map(|(_, dev)| dev).collect::<Vec<_>>();
+        println!("selected {} devices", kb_devices.len());
+        Ok(Self{ devices: kb_devices, alternate: false })
     }
 
     pub fn next_key(&mut self) -> Result<Option<char>> {
@@ -37,12 +39,14 @@ impl Keyboard {
                     continue
                 }
                 let (_, ev) = dev.next_event(evdev_rs::ReadFlag::NORMAL | evdev_rs::ReadFlag::BLOCKING)?;
-                // println!("Event: time {:?} {}.{}, ++++++++++++++++++++ {}    {} +++++++++++++++",
-                //                 dev.name(),
-                //                 ev.time.tv_sec,
-                //                 ev.time.tv_usec,
-                //                 ev.event_type,
-                //                 ev.event_code);
+                self.alternate = !self.alternate;
+                if self.alternate { continue }
+                println!("Event: time {:?} {}.{}, ++++++++++++++++++++ {}    {} +++++++++++++++",
+                                dev.name(),
+                                ev.time.tv_sec,
+                                ev.time.tv_usec,
+                                ev.event_type,
+                                ev.event_code);
                 use evdev_rs::enums::*;
                 if let EventCode::EV_KEY(key) = ev.event_code {
                    println!("dev {:?}", dev.name());
