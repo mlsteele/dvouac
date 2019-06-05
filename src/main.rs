@@ -25,7 +25,7 @@ fn main() {
 }
 
 fn main2() -> EResult {
-    let mut kb = Keyboard::new()?;
+    let mut kb = KeyboardXInput::new()?;
     let mut recognizer = Recognizer::new();
     loop {
         let c = kb.next_key()?;
