@@ -2,6 +2,8 @@
 
 Automatically switch keyboard layouts based on typed words.
 
+Currently works for US <-> Dvorak on Linux.
+
 ```
-cargo build --release && sudo RUST_BACKTRACE=1 target/release/twype
+cargo run --release
 ```
